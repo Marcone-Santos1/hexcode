@@ -1,17 +1,174 @@
 ---
+import GameBoard from '../components/GameBoard.svelte';
+import { generateDailyColor } from '../utils/gameLogic';
 
+// Obter a data atual no formato YYYY-MM-DD
+const today = new Date().toISOString().split('T')[0];
+const corDoDia = generateDailyColor(today);
 ---
 
-<html lang="en">
+<!DOCTYPE html>
+<html lang="pt-BR">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
+		
+		<!-- SEO Meta Tags -->
+		<title>HexCode - Jogo Diário de Adivinhação de Cores</title>
+		<meta name="description" content="HexCode é um jogo diário de adivinhação de cores em código Hexadecimal inspirado no Termo e Wordle. Decifre a cor do dia usando CSS e RGB!" />
+		
+		<!-- Google Fonts -->
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
 	</head>
-	<body>
-		<h1>Astro</h1>
+	<body style={`--target-color: #${corDoDia};`}>
+		<div class="glow-overlay"></div>
+		
+		<header class="game-header" id="main-header">
+			<div class="header-container">
+				<h1 class="logo">#<span class="logo-highlight">HEX</span>CODE</h1>
+			</div>
+		</header>
+
+		<main class="game-container" id="game-main-content">
+			<GameBoard client:load targetColor={corDoDia} />
+		</main>
+
+		<footer class="game-footer">
+			<p>#HEXCODE &bull; Jogo de Adivinhação de Cores Diário</p>
+		</footer>
 	</body>
 </html>
+
+<style>
+	:root {
+		--bg-dark: #090a0f;
+		--bg-card: rgba(18, 20, 30, 0.75);
+		--border-color: rgba(255, 255, 255, 0.06);
+		--text-primary: #f8fafc;
+		--text-secondary: #475569;
+		--transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	}
+
+	* {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	html, body {
+		height: 100%;
+		background-color: var(--bg-dark);
+		overflow: hidden;
+	}
+
+	body {
+		font-family: 'Outfit', sans-serif;
+		color: var(--text-primary);
+		min-height: 100vh;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		position: relative;
+		/* Satisfaz o requisito técnico mantendo a cor misteriosa no background-color do body */
+		background-color: var(--target-color);
+	}
+
+	/* O overlay escuro cobre a cor sólida do body para evitar ofuscamento, aplicando o glow de forma sutil */
+	.glow-overlay {
+		position: absolute;
+		inset: 0;
+		background-color: var(--bg-dark);
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.glow-overlay::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(circle at 50% 0%, var(--target-color) 0%, transparent 65%);
+		opacity: 0.14; /* Intensidade calibrada para um brilho elegante de fundo */
+	}
+
+	/* Header moderno e escuro, alinhado com o estilo de Termo/Wordle */
+	.game-header {
+		position: relative;
+		z-index: 10;
+		width: 100%;
+		padding: 0.9rem 1.5rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border-bottom: 1px solid var(--border-color);
+		background-color: var(--bg-dark);
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+	}
+
+	.header-container {
+		width: 100%;
+		max-width: 440px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.logo {
+		font-family: 'Fira Code', monospace;
+		font-size: 1.45rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		text-align: center;
+	}
+
+	.logo-highlight {
+		font-weight: 800;
+		color: #ffffff;
+		background: linear-gradient(to right, #ffffff 40%, rgba(255, 255, 255, 0.6) 100%);
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.game-container {
+		position: relative;
+		z-index: 10;
+		flex: 1;
+		width: 100%;
+		max-width: 440px;
+		padding: 1.5rem 1rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
+		overflow-y: auto;
+	}
+
+	.game-footer {
+		position: relative;
+		z-index: 10;
+		width: 100%;
+		text-align: center;
+		padding: 0.85rem;
+		font-size: 0.7rem;
+		color: rgba(255, 255, 255, 0.2);
+		border-top: 1px solid rgba(255, 255, 255, 0.02);
+		background-color: var(--bg-dark);
+	}
+
+	/* Ajustes Responsivos */
+	@media (max-width: 480px) {
+		.logo {
+			font-size: 1.3rem;
+		}
+		.game-header {
+			padding: 0.75rem 1rem;
+		}
+		.game-container {
+			padding: 1rem 0.5rem;
+		}
+	}
+</style>
